@@ -133,7 +133,6 @@ public class FirstTest {
     initSearch();
     typeSearchQuery(searchQuery);
     List<String> articles = articles();
-    System.out.println(articles);
     assertTrue("Some articles found do not contain the word '" + searchQuery + "'",
             articles.stream().allMatch((s) -> s.toLowerCase().contains(searchQuery)));
   }
