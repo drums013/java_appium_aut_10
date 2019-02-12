@@ -15,6 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -37,6 +38,11 @@ public class FirstTest {
             ("app", "C://Program Files/Git/JavaAppiumAutomation/apks/org.wikipedia.apk");
 
     driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
+
+    //Exercise #7
+    if (driver.getOrientation().value().equals("landscape")) {
+      driver.rotate(ScreenOrientation.PORTRAIT);
+    }
   }
 
   @After
@@ -345,6 +351,33 @@ public class FirstTest {
             articles.stream().allMatch((s) -> s.toLowerCase().contains(searchQuery)));
   }
 
+  @Test //Exercise #5
+  public void saveTwoArticlesToMyList() {
+    String firstQuery = "Java";
+    String secondQuery = "Appium";
+    String nameOfFolder = "My list";
+    String firstSavedArticle = saveAnyFoundArticle(firstQuery, nameOfFolder);
+    String secondSavedArticle = saveAnyFoundArticle(secondQuery, nameOfFolder);
+    removeSavedArticleFromFolder(nameOfFolder, firstSavedArticle);
+    List<String> articlesRemainingInList = articles();
+    selectArticleByTitle(secondSavedArticle);
+    String ActualTitleOfOpenArticle = getArticleTitle();
+    assertTrue("Article titled '" + secondSavedArticle + "' is missing",
+            articlesRemainingInList.stream().anyMatch(secondSavedArticle::equals));
+    assertEquals("Instead of an article called '" + secondSavedArticle + "'" +
+                    ", an article called '" + ActualTitleOfOpenArticle + "' was opened",
+            secondSavedArticle, ActualTitleOfOpenArticle);
+  }
+
+  @Test //Exercise #6
+  public void assertTitle() {
+    String searchQuery = "Java";
+    findArticleInSearch(searchQuery);
+    String articleTitle = selectRandomArticle("No results found for " + searchQuery);
+    selectArticleByTitle(articleTitle);
+    checkIfArticleHasTitle();
+  }
+
   private WebElement waitForElementPresent(By by, String errorMessage, long timeOutInSeconds) {
     WebDriverWait wait = new WebDriverWait(driver, timeOutInSeconds);
     wait.withMessage(errorMessage + "\n");
@@ -505,5 +538,174 @@ public class FirstTest {
   private String waitForElementAndGetAttrebute(By by, String attribute, String errorMessage, long timeOutInSeconds) {
     WebElement element = waitForElementPresent(by, errorMessage, timeOutInSeconds);
     return element.getAttribute(attribute);
+  }
+
+  private void openFolderByName(String nameOfFolder) {
+    waitForElementAndClick(
+            By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
+            "Cannot find navigation button to My List",
+            5);
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_title'][@text='" + nameOfFolder + "']"),
+            "there is no folder named " + nameOfFolder,
+            5);
+  }
+
+  private void checkIfArticleHasTitle() {
+    assertElementPresent(By.id("org.wikipedia:id/view_page_title_text"), "The article has no title");
+  }
+
+  private String getArticleTitle() {
+    return waitForElementAndGetAttrebute(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "text",
+            "Cannot find title of article",
+            15);
+  }
+
+  private void fillFolderNameInput(String nameOfFolder) {
+    waitForElementAndClear(
+            By.id("org.wikipedia:id/text_input"),
+            "Cannot find input to set name of articles folder",
+            5);
+    waitForElementAndSendKeys(
+            By.id("org.wikipedia:id/text_input"),
+            nameOfFolder,
+            "Cannot put text into article folder input",
+            5);
+    waitForElementAndClick(
+            By.xpath("//*[@text='OK']"),
+            "Cannot press OK button",
+            5);
+  }
+
+  private void removeSavedArticle(String articleTitle) {
+    swipeElementToLeft(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='" + articleTitle + "']"),
+            "Cannot find saved article");
+//    waitForElementNotPresent(
+//            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='" + articleTitle + "']"),
+//            "Cannot delete saved article",
+//            5);
+  }
+
+  private void selectGotIt() {
+    waitForElementAndClick(
+            By.id("org.wikipedia:id/onboarding_button"),
+            "Cannot find 'Got it' tip overlay",
+            5);
+  }
+
+  private void selectAddToReadingList() {
+    waitForElementAndClick(
+            By.xpath("//*[@text='Add to reading list']"),
+            "Cannot find options to add article to reading list",
+            5);
+  }
+
+  private void selectMoreOptions() {
+    waitForElementAndClick(
+            By.xpath("//android.widget.ImageView[@content-desc='More options']"),
+            "Cannot find button to open article options",
+            5);
+  }
+
+  private void selectArticleByTitle(String label) {
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']" +
+                    "//*[@text='" + label + "']"),
+            "Cannot find '" + label + "' article in search",
+            5);
+  }
+
+  private void initFolderCreation() {
+    waitForElementAndClick(
+            By.id("org.wikipedia:id/create_button"),
+            "Cannot find a button to create a new folder",
+            5);
+  }
+
+  private void selectFolderToSave(String nameOfFolder) {
+    waitForElementAndClick(
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + nameOfFolder + "']"),
+            "Cannot find folder " + nameOfFolder,
+            5);
+  }
+
+  private boolean folderAlreadyCreated(String nameOfFolder) {
+    List elements = driver.findElements(
+            By.xpath("//*[@resource-id='org.wikipedia:id/item_container']//*[@text='" + nameOfFolder + "']"));
+    return elements.size() > 0;
+  }
+
+  private boolean isFirstFolderCreation() {
+    List elements = driver.findElements(By.id("org.wikipedia:id/onboarding_button"));
+    return (elements.size() > 0);
+  }
+
+
+  private void removeSavedArticleFromFolder(String nameOfFolder, String articleTitle) {
+    openFolderByName(nameOfFolder);
+    removeSavedArticle(articleTitle);
+  }
+
+  private void findArticleInSearch(String searchQuery) {
+    initSearch();
+    typeSearchQuery(searchQuery);
+  }
+
+  private void assertElementPresent(By by, String errorMessage) {
+    int amountOfElements = getAmountOfElements(by);
+    if (amountOfElements == 0) {
+      String defaultMessage = "An element '" + by.toString() + "' supposed to be present";
+      throw new AssertionError(defaultMessage + "\n" + errorMessage);
+    }
+  }
+
+  private String saveAnyFoundArticle(String searchQuery, String nameOfFolder) {
+    findArticleInSearch(searchQuery);
+    String articleTitle = selectRandomArticle("No results found for " + searchQuery);
+    selectArticleByTitle(articleTitle);
+    addArticleToReadingList(nameOfFolder);
+    comeBack();
+    return articleTitle;
+  }
+
+  private void comeBack() {
+    driver.navigate().back();
+  }
+
+  private void addArticleToReadingList(String nameOfFolder) {
+    selectMoreOptions();
+    selectAddToReadingList();
+    if (isFirstFolderCreation()) {
+      selectGotIt();
+      fillFolderNameInput(nameOfFolder);
+    } else {
+      selectFolder(nameOfFolder);
+    }
+  }
+
+  private void selectFolder(String nameOfFolder) {
+    if (folderAlreadyCreated(nameOfFolder)) {
+      selectFolderToSave(nameOfFolder);
+    } else {
+      createNewFolderToSave(nameOfFolder);
+    }
+  }
+
+  private void createNewFolderToSave(String nameOfFolder) {
+    initFolderCreation();
+    fillFolderNameInput(nameOfFolder);
+  }
+
+  private String selectRandomArticle(String errorMessage) {
+    List articles = articles();
+    if (articles.size() > 0) {
+      Random random = new Random();
+      return (String) articles.get(random.nextInt(articles.size()));
+    } else {
+      throw new AssertionError(errorMessage);
+    }
   }
 }
