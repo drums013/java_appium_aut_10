@@ -31,4 +31,14 @@ public class ArticleTests extends CoreTestCase{
     articlePageObject.waitForTitleElement();
     articlePageObject.swipeToFooter();
   }
+
+  @Test //Exercise #6
+  public void testAssertTitle() {
+    ArticlePageObject articlePageObject = new ArticlePageObject(driver);
+    String searchQuery = "Java";
+    articlePageObject.findArticleInSearch(searchQuery);
+    String articleTitle = articlePageObject.selectRandomArticle("No results found for " + searchQuery);
+    articlePageObject.selectArticleByTitle(articleTitle);
+    articlePageObject.checkIfArticleHasTitle();
+  }
 }

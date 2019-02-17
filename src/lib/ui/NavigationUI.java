@@ -18,4 +18,8 @@ public class NavigationUI extends MainPageObject{
             "Cannot find navigation button to My List",
             5);
   }
+
+  public void comeBack() {
+    driver.navigate().back();
+  }
 }

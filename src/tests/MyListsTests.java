@@ -7,6 +7,8 @@ import lib.ui.NavigationUI;
 import lib.ui.SearchPageObject;
 import org.junit.Test;
 
+import java.util.List;
+
 public class MyListsTests extends CoreTestCase {
 
   @Test
@@ -31,4 +33,29 @@ public class MyListsTests extends CoreTestCase {
     myListsPageObject.swipeByArticleToDelete(articleTitle);
   }
 
+  @Test //Exercise #5
+  public void testSaveTwoArticlesToMyList() {
+    String firstQuery = "Java";
+    String secondQuery = "Appium";
+    String nameOfFolder = "My list";
+
+    ArticlePageObject articlePageObject = new ArticlePageObject(driver);
+    String firstSavedArticle = articlePageObject.saveAnyFoundArticle(firstQuery, nameOfFolder);
+    String secondSavedArticle = articlePageObject.saveAnyFoundArticle(secondQuery, nameOfFolder);
+
+    NavigationUI navigationUI = new NavigationUI(driver);
+    navigationUI.clickMyLists();
+
+    MyListsPageObject myListsPageObject = new MyListsPageObject(driver);
+    myListsPageObject.removeSavedArticleFromFolder(nameOfFolder, firstSavedArticle);
+    List<String> articlesRemainingInList = articlePageObject.articles();
+    articlePageObject.selectArticleByTitle(secondSavedArticle);
+    String ActualTitleOfOpenArticle = articlePageObject.getArticleTitle();
+
+    assertTrue("Article titled '" + secondSavedArticle + "' is missing",
+            articlesRemainingInList.stream().anyMatch(secondSavedArticle::equals));
+    assertEquals("Instead of an article called '" + secondSavedArticle + "'" +
+                    ", an article called '" + ActualTitleOfOpenArticle + "' was opened",
+            secondSavedArticle, ActualTitleOfOpenArticle);
+  }
 }

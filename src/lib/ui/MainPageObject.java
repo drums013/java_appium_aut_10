@@ -119,4 +119,18 @@ public class MainPageObject {
     WebElement element = waitForElementPresent(by, errorMessage, timeOutInSeconds);
     return element.getAttribute(attribute);
   }
+
+  public boolean checkTextAttribute(By by, String value, String errorMessage, long timeOutInSeconds) {
+    WebElement search_field = waitForElementPresent(by, errorMessage, timeOutInSeconds);
+    String text = search_field.getAttribute("text");
+    return text.equals(value);
+  }
+
+  public void assertElementPresent(By by, String errorMessage) {
+    int amountOfElements = getAmountOfElements(by);
+    if (amountOfElements == 0) {
+      String defaultMessage = "An element '" + by.toString() + "' supposed to be present";
+      throw new AssertionError(defaultMessage + "\n" + errorMessage);
+    }
+  }
 }
