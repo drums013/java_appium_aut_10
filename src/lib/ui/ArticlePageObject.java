@@ -24,7 +24,10 @@ public class ArticlePageObject extends MainPageObject {
                   "//*[@text='{ARTICLE_TITLE}']",
           FOLDER_TO_SAVE_BY_NAME_TPL = "//*[@resource-id='org.wikipedia:id/item_container']" +
                   "//*[@text='{NAME_OF_FOLDER}']",
-          CREATE_FOLDER_TO_SAVE_BUTTON = "org.wikipedia:id/create_button";
+          CREATE_FOLDER_TO_SAVE_BUTTON = "org.wikipedia:id/create_button",
+          ARTICLE_CONTAINER = "org.wikipedia:id/page_list_item_container",
+          TEXT_VIEW_ELEMENT = "//android.widget.TextView",
+          TEXT_ATTRIBUTE = "text";
 
   /* TEMPLATES METHODS */
   private static String getArticleXpathByName(String articleTitle) {
@@ -49,7 +52,7 @@ public class ArticlePageObject extends MainPageObject {
 
   public String getArticleTitle() {
     WebElement titleElement = waitForTitleElement();
-    return titleElement.getAttribute("text");
+    return titleElement.getAttribute(TEXT_ATTRIBUTE);
   }
 
   public void swipeToFooter() {
@@ -121,6 +124,10 @@ public class ArticlePageObject extends MainPageObject {
             5);
   }
 
+  public List<WebElement> listOfArticleElements() {
+    return driver.findElements(By.id(ARTICLE_CONTAINER));
+  }
+
   public void createNewFolderToSave(String nameOfFolder) {
     initFolderCreation();
     fillFolderNameInput(nameOfFolder);
@@ -148,7 +155,7 @@ public class ArticlePageObject extends MainPageObject {
     List<String> searchingResults = new ArrayList<>();
     List<WebElement> elements = listOfFoundArticles();
     for (WebElement element : elements) {
-      String text = element.getAttribute("text");
+      String text = element.getAttribute(TEXT_ATTRIBUTE);
       searchingResults.add(text);
     }
     return new ArrayList<String>(searchingResults);
@@ -184,7 +191,7 @@ public class ArticlePageObject extends MainPageObject {
   }
 
   public boolean isFirstFolderCreation() {
-    List elements = driver.findElements(By.id("org.wikipedia:id/onboarding_button"));
+    List elements = driver.findElements(By.id(ADD_TO_MY_LIST_OVERLAY));
     return (elements.size() > 0);
   }
 
@@ -211,5 +218,21 @@ public class ArticlePageObject extends MainPageObject {
     List elements = driver.findElements(
             By.xpath(folderNameXpath));
     return elements.size() > 0;
+  }
+
+  public ArrayList<String> articlesWithDescription() {
+    List<String> searchingResults = new ArrayList<>();
+    List<WebElement> elements = listOfArticleElements();
+    for (WebElement element : elements) {
+      List<WebElement> cells = element.findElements(By.xpath(TEXT_VIEW_ELEMENT));
+      String articleTitle = cells.get(0).getAttribute(TEXT_ATTRIBUTE);
+      if (cells.size() < 2) {
+        throw new AssertionError("The article entitled '" + articleTitle + "' has no description.");
+      }
+      String description = cells.get(1).getAttribute(TEXT_ATTRIBUTE);
+      searchingResults.add(articleTitle);
+      searchingResults.add(description);
+    }
+    return new ArrayList<String>(searchingResults);
   }
 }

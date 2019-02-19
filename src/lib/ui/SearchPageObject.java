@@ -3,6 +3,8 @@ package lib.ui;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
 
+import java.util.List;
+
 public class SearchPageObject extends MainPageObject {
 
   private static final String
@@ -15,7 +17,9 @@ public class SearchPageObject extends MainPageObject {
                   "/*[@resource-id='org.wikipedia:id/page_list_item_container']",
           SEARCH_EMPTY_RESULT_ELEMENT = "//*[@text='No results found']",
           SEARCH_INPUT_PLACEHOLDER = "org.wikipedia:id/search_src_text",
-          SEARCH_PROGRESS_BAR = "org.wikipedia:id/search_progress_bar";
+          SEARCH_PROGRESS_BAR = "org.wikipedia:id/search_progress_bar",
+          SEARCH_RESULTS_BY_TITLE_AND_DESCRIPTION_TPL = "//*[android.widget.TextView[@text='{ARTICLE_TITLE}']" +
+                  " and android.widget.TextView[@text='{ARTICLE_DESCRIPTION}']]";
 
   public SearchPageObject(AppiumDriver driver) {
     super(driver);
@@ -25,7 +29,22 @@ public class SearchPageObject extends MainPageObject {
   private static String getResultSearchElement(String substring) {
     return SEARCH_RESULT_BY_SUBSTRING_TPL.replace("{SUBSTRING}", substring);
   }
+
+  private static String getResultSearchByTitleAndDescription(String title, String description) {
+    return SEARCH_RESULTS_BY_TITLE_AND_DESCRIPTION_TPL
+            .replace("{ARTICLE_TITLE}", title)
+            .replace("{ARTICLE_DESCRIPTION}", description);
+  }
   /* TEMPLATES METHODS */
+
+  public void waitForElementByTitleAndDescription(String articleTitle, String description) {
+    String searchResultXpath = getResultSearchByTitleAndDescription(articleTitle, description);
+    this.waitForElementPresent(
+            By.xpath(searchResultXpath),
+            "Cannot find an article with the title '"
+                    + articleTitle + "' and the description '" + description + "'",
+            5);
+  }
 
   public void initSearchInput() {
     this.waitForElementAndClick
@@ -50,7 +69,7 @@ public class SearchPageObject extends MainPageObject {
   }
 
   public void waitForSearchResult(String substring) {
-    String searchResultXpath =getResultSearchElement(substring);
+    String searchResultXpath = getResultSearchElement(substring);
     this.waitForElementPresent(
             By.xpath(searchResultXpath),
             "Cannot find search result with substring " + substring);
@@ -115,4 +134,21 @@ public class SearchPageObject extends MainPageObject {
             5);
   }
 
+  public boolean checkIfSpecifiedNumberOfArticlesFound(int numberOfArticles) {
+    ArticlePageObject articlePageObject = new ArticlePageObject(driver);
+    List<String> articles = articlePageObject.articlesWithDescription();
+    if (articles.size() / 2 < numberOfArticles) {
+      throw new AssertionError("The number of articles in the list is less than " + numberOfArticles);
+    }
+    int i = 0;
+    while (i < numberOfArticles) {
+      String articleTitle = articles.iterator().next();
+      articles.remove(articleTitle);
+      String description = articles.iterator().next();
+      articles.remove(description);
+      waitForElementByTitleAndDescription(articleTitle, description);
+      i++;
+    }
+    return true;
+  }
 }

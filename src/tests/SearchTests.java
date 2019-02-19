@@ -79,4 +79,15 @@ public class SearchTests extends CoreTestCase{
     assertTrue("Some articles found do not contain the word '" + searchQuery + "'",
             articles.stream().allMatch((s) -> s.toLowerCase().contains(searchQuery)));
   }
+
+  @Test //Ex #9
+  public void testVerificationOfSearchResultsByTitleAndDescription() {
+    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    searchPageObject.initSearchInput();
+    String searchQuery = "Android";
+    searchPageObject.typeSearchLine(searchQuery);
+    int minimumNumberOfArticles = 3;
+    assertTrue("Search results contain less than " + minimumNumberOfArticles + " articles",
+            searchPageObject.checkIfSpecifiedNumberOfArticlesFound(minimumNumberOfArticles));
+  }
 }
