@@ -11,22 +11,22 @@ import java.util.Random;
 public class ArticlePageObject extends MainPageObject {
 
   private static final String
-          TITLE = "org.wikipedia:id/view_page_title_text",
-          FOOTER_ELEMENT = "//*[@text='View page in browser']",
-          OPTIONS_BUTTON = "//android.widget.ImageView[@content-desc='More options']",
-          OPTIONS_ADD_TO_MY_LIST_BUTTON = "//*[@text='Add to reading list']",
-          ADD_TO_MY_LIST_OVERLAY = "org.wikipedia:id/onboarding_button",
-          MY_LIST_NAME_INPUT = "org.wikipedia:id/text_input",
-          MY_LIST_OK_BUTTON = "//*[@text='OK']",
-          CLOSE_ARTICLE_BUTTON = "//android.widget.ImageButton[@content-desc='Navigate up']",
-          TITLES_ELEMENTS = "org.wikipedia:id/page_list_item_title",
-          ARTICLE_BY_TITLE_TPL = "//*[@resource-id='org.wikipedia:id/page_list_item_container']" +
+          TITLE = "id:org.wikipedia:id/view_page_title_text",
+          FOOTER_ELEMENT = "xpath://*[@text='View page in browser']",
+          OPTIONS_BUTTON = "xpath://android.widget.ImageView[@content-desc='More options']",
+          OPTIONS_ADD_TO_MY_LIST_BUTTON = "xpath://*[@text='Add to reading list']",
+          ADD_TO_MY_LIST_OVERLAY = "id:org.wikipedia:id/onboarding_button",
+          MY_LIST_NAME_INPUT = "id:org.wikipedia:id/text_input",
+          MY_LIST_OK_BUTTON = "xpath://*[@text='OK']",
+          CLOSE_ARTICLE_BUTTON = "xpath://android.widget.ImageButton[@content-desc='Navigate up']",
+          TITLES_ELEMENTS = "id:org.wikipedia:id/page_list_item_title",
+          ARTICLE_BY_TITLE_TPL = "xpath://*[@resource-id='org.wikipedia:id/page_list_item_container']" +
                   "//*[@text='{ARTICLE_TITLE}']",
-          FOLDER_TO_SAVE_BY_NAME_TPL = "//*[@resource-id='org.wikipedia:id/item_container']" +
+          FOLDER_TO_SAVE_BY_NAME_TPL = "xpath://*[@resource-id='org.wikipedia:id/item_container']" +
                   "//*[@text='{NAME_OF_FOLDER}']",
           CREATE_FOLDER_TO_SAVE_BUTTON = "org.wikipedia:id/create_button",
-          ARTICLE_CONTAINER = "org.wikipedia:id/page_list_item_container",
-          TEXT_VIEW_ELEMENT = "//android.widget.TextView",
+          ARTICLE_CONTAINER = "id:org.wikipedia:id/page_list_item_container",
+          TEXT_VIEW_ELEMENT = "xpath://android.widget.TextView",
           TEXT_ATTRIBUTE = "text";
 
   /* TEMPLATES METHODS */
@@ -45,7 +45,7 @@ public class ArticlePageObject extends MainPageObject {
 
   public WebElement waitForTitleElement() {
     return this.waitForElementPresent(
-            By.id(TITLE),
+            (TITLE),
             "Cannot find article title on page!",
             15);
   }
@@ -57,7 +57,7 @@ public class ArticlePageObject extends MainPageObject {
 
   public void swipeToFooter() {
     this.swipeUpToFindElement(
-            By.xpath(FOOTER_ELEMENT),
+            FOOTER_ELEMENT,
             "Cannot the end of article",
             20);
   }
@@ -71,7 +71,7 @@ public class ArticlePageObject extends MainPageObject {
 
   public void closeArticle() {
     this.waitForElementAndClick(
-            By.xpath(CLOSE_ARTICLE_BUTTON),
+            CLOSE_ARTICLE_BUTTON,
             "Cannot close article, cannot find X link",
             5);
   }
@@ -82,44 +82,44 @@ public class ArticlePageObject extends MainPageObject {
 
   public void initFolderCreation() {
     this.waitForElementAndClick(
-            By.id(CREATE_FOLDER_TO_SAVE_BUTTON),
+            CREATE_FOLDER_TO_SAVE_BUTTON,
             "Cannot find a button to create a new folder",
             5);
   }
 
   public void selectMoreOptions() {
     this.waitForElementAndClick(
-            By.xpath(OPTIONS_BUTTON),
+            OPTIONS_BUTTON,
             "Cannot find button to open article options",
             5);
   }
 
   public void selectAddToReadingList() {
     this.waitForElementAndClick(
-            By.xpath(OPTIONS_ADD_TO_MY_LIST_BUTTON),
+            OPTIONS_ADD_TO_MY_LIST_BUTTON,
             "Cannot find options to add article to reading list",
             5);
   }
 
   public void selectGotIt() {
     this.waitForElementAndClick(
-            By.id(ADD_TO_MY_LIST_OVERLAY),
+            ADD_TO_MY_LIST_OVERLAY,
             "Cannot find 'Got it' tip overlay",
             5);
   }
 
   public void fillFolderNameInput(String nameOfFolder) {
     this.waitForElementAndClear(
-            By.id(MY_LIST_NAME_INPUT),
+            MY_LIST_NAME_INPUT,
             "Cannot find input to set name of articles folder",
             5);
     this.waitForElementAndSendKeys(
-            By.id(MY_LIST_NAME_INPUT),
+            MY_LIST_NAME_INPUT,
             nameOfFolder,
             "Cannot put text into article folder input",
             5);
     this.waitForElementAndClick(
-            By.xpath(MY_LIST_OK_BUTTON),
+            MY_LIST_OK_BUTTON,
             "Cannot press OK button",
             5);
   }
@@ -134,7 +134,7 @@ public class ArticlePageObject extends MainPageObject {
   }
 
   public void checkIfArticleHasTitle() {
-    assertElementPresent(By.id(TITLE), "The article has no title");
+    assertElementPresent((TITLE), "The article has no title");
   }
 
   public void findArticleInSearch(String searchQuery) {
@@ -146,7 +146,7 @@ public class ArticlePageObject extends MainPageObject {
   public void selectFolderToSave(String nameOfFolder) {
     String folderNameXpath = getFolderXpathByName(nameOfFolder);
     this.waitForElementAndClick(
-            By.xpath(folderNameXpath),
+            (folderNameXpath),
             "Cannot find folder " + nameOfFolder,
             5);
   }
@@ -174,7 +174,7 @@ public class ArticlePageObject extends MainPageObject {
   public void selectArticleByTitle(String articleTitle) {
     String articleTitleXpath = getArticleXpathByName(articleTitle);
     this.waitForElementAndClick(
-            By.xpath(articleTitleXpath),
+            (articleTitleXpath),
             "Cannot find '" + articleTitle + "' article in search",
             5);
   }
