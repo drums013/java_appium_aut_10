@@ -1,6 +1,8 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
+import lib.Platform;
+import lib.ui.factories.SearchPageObjectFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -8,26 +10,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ArticlePageObject extends MainPageObject {
+abstract public class ArticlePageObject extends MainPageObject {
 
-  private static final String
-          TITLE = "id:org.wikipedia:id/view_page_title_text",
-          FOOTER_ELEMENT = "xpath://*[@text='View page in browser']",
-          OPTIONS_BUTTON = "xpath://android.widget.ImageView[@content-desc='More options']",
-          OPTIONS_ADD_TO_MY_LIST_BUTTON = "xpath://*[@text='Add to reading list']",
-          ADD_TO_MY_LIST_OVERLAY = "id:org.wikipedia:id/onboarding_button",
-          MY_LIST_NAME_INPUT = "id:org.wikipedia:id/text_input",
-          MY_LIST_OK_BUTTON = "xpath://*[@text='OK']",
-          CLOSE_ARTICLE_BUTTON = "xpath://android.widget.ImageButton[@content-desc='Navigate up']",
-          TITLES_ELEMENTS = "id:org.wikipedia:id/page_list_item_title",
-          ARTICLE_BY_TITLE_TPL = "xpath://*[@resource-id='org.wikipedia:id/page_list_item_container']" +
-                  "//*[@text='{ARTICLE_TITLE}']",
-          FOLDER_TO_SAVE_BY_NAME_TPL = "xpath://*[@resource-id='org.wikipedia:id/item_container']" +
-                  "//*[@text='{NAME_OF_FOLDER}']",
-          CREATE_FOLDER_TO_SAVE_BUTTON = "org.wikipedia:id/create_button",
-          ARTICLE_CONTAINER = "id:org.wikipedia:id/page_list_item_container",
-          TEXT_VIEW_ELEMENT = "xpath://android.widget.TextView",
-          TEXT_ATTRIBUTE = "text";
+  protected static String
+          TITLE,
+          FOOTER_ELEMENT,
+          OPTIONS_BUTTON,
+          OPTIONS_ADD_TO_MY_LIST_BUTTON,
+          ADD_TO_MY_LIST_OVERLAY,
+          MY_LIST_NAME_INPUT,
+          MY_LIST_OK_BUTTON,
+          CLOSE_ARTICLE_BUTTON,
+          TITLES_ELEMENTS,
+          ARTICLE_BY_TITLE_TPL,
+          FOLDER_TO_SAVE_BY_NAME_TPL,
+          CREATE_FOLDER_TO_SAVE_BUTTON,
+          ARTICLE_CONTAINER,
+          TEXT_VIEW_ELEMENT,
+          TEXT_ATTRIBUTE,
+          NAME_ATTRIBUTE;
 
   /* TEMPLATES METHODS */
   private static String getArticleXpathByName(String articleTitle) {
@@ -52,7 +53,11 @@ public class ArticlePageObject extends MainPageObject {
 
   public String getArticleTitle() {
     WebElement titleElement = waitForTitleElement();
-    return titleElement.getAttribute(TEXT_ATTRIBUTE);
+    if (Platform.getInstance().isAndroid()) {
+      return titleElement.getAttribute(TEXT_ATTRIBUTE);
+    } else {
+      return titleElement.getAttribute(NAME_ATTRIBUTE);
+    }
   }
 
   public void swipeToFooter() {
@@ -138,7 +143,7 @@ public class ArticlePageObject extends MainPageObject {
   }
 
   public void findArticleInSearch(String searchQuery) {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     searchPageObject.typeSearchLine(searchQuery);
   }

@@ -5,6 +5,8 @@ import lib.ui.ArticlePageObject;
 import lib.ui.MyListsPageObject;
 import lib.ui.NavigationUI;
 import lib.ui.SearchPageObject;
+import lib.ui.factories.ArticlePageObjectFactory;
+import lib.ui.factories.SearchPageObjectFactory;
 import org.junit.Test;
 
 import java.util.List;
@@ -13,12 +15,12 @@ public class MyListsTests extends CoreTestCase {
 
   @Test
   public void testSaveFirstArticleToMyList() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     searchPageObject.typeSearchLine("Java");
     searchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
 
-    ArticlePageObject articlePageObject = new ArticlePageObject(driver);
+    ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
     articlePageObject.waitForTitleElement();
     String nameOfFolder = "Learning programming";
     String articleTitle = articlePageObject.getArticleTitle();
@@ -39,7 +41,7 @@ public class MyListsTests extends CoreTestCase {
     String secondQuery = "Appium";
     String nameOfFolder = "My list";
 
-    ArticlePageObject articlePageObject = new ArticlePageObject(driver);
+    ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
     String firstSavedArticle = articlePageObject.saveAnyFoundArticle(firstQuery, nameOfFolder);
     String secondSavedArticle = articlePageObject.saveAnyFoundArticle(secondQuery, nameOfFolder);
 

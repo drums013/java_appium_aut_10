@@ -3,6 +3,8 @@ package tests;
 import lib.CoreTestCase;
 import lib.ui.ArticlePageObject;
 import lib.ui.SearchPageObject;
+import lib.ui.factories.ArticlePageObjectFactory;
+import lib.ui.factories.SearchPageObjectFactory;
 import org.junit.Test;
 
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.List;
 public class SearchTests extends CoreTestCase{
   @Test
   public void testSearch() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     searchPageObject.typeSearchLine("Java");
     searchPageObject.waitForSearchResult("Object-oriented programming language");
@@ -18,7 +20,7 @@ public class SearchTests extends CoreTestCase{
 
   @Test
   public void testCancelSearch() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     searchPageObject.waitForCancelButtonToAppear();
     searchPageObject.clickCancelSearch();
@@ -27,7 +29,7 @@ public class SearchTests extends CoreTestCase{
 
   @Test
   public void testAmountOfNotEmptySearch() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     String searchLine = "Linkin Park Diskography";
     searchPageObject.typeSearchLine(searchLine);
@@ -37,7 +39,7 @@ public class SearchTests extends CoreTestCase{
 
   @Test
   public void testAmountOfEmptySearch() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     String searchLine = "zscasczxc";
     searchPageObject.typeSearchLine(searchLine);
@@ -47,7 +49,7 @@ public class SearchTests extends CoreTestCase{
 
   @Test //Exercise #2
   public void testPlaceholderSearchField() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     boolean placeholder = searchPageObject.checkSearchFieldPlaceholder("Search…");
     assertTrue("We see unexpected placeholder", placeholder);
@@ -55,11 +57,11 @@ public class SearchTests extends CoreTestCase{
 
   @Test //Exercise #3
   public void testSearchQueryAndCancelResults() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     String searchQuery = "Java";
     searchPageObject.typeSearchLine(searchQuery);
-    ArticlePageObject articlePageObject = new ArticlePageObject(driver);
+    ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
     int numberOfSearchResultsBefore = articlePageObject.listOfFoundArticles().size();
     searchPageObject.clickCancelSearch();
     int numberOfSearchResultsAfter = articlePageObject.listOfFoundArticles().size();
@@ -69,11 +71,11 @@ public class SearchTests extends CoreTestCase{
 
   @Test //Exercise #4
   public void testWordPresenceInSearchResults() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     String searchQuery = "java";
     searchPageObject.typeSearchLine(searchQuery);
-    ArticlePageObject articlePageObject = new ArticlePageObject(driver);
+    ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
     List<String> articles = articlePageObject.articles();
     assertTrue("No results found for " + searchQuery, articles.size() > 0);
     assertTrue("Some articles found do not contain the word '" + searchQuery + "'",
@@ -82,7 +84,7 @@ public class SearchTests extends CoreTestCase{
 
   @Test //Ex #9
   public void testVerificationOfSearchResultsByTitleAndDescription() {
-    SearchPageObject searchPageObject = new SearchPageObject(driver);
+    SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
     searchPageObject.initSearchInput();
     String searchQuery = "Android";
     searchPageObject.typeSearchLine(searchQuery);
