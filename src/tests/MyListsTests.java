@@ -1,17 +1,22 @@
 package tests;
 
 import lib.CoreTestCase;
+import lib.Platform;
 import lib.ui.ArticlePageObject;
 import lib.ui.MyListsPageObject;
 import lib.ui.NavigationUI;
 import lib.ui.SearchPageObject;
 import lib.ui.factories.ArticlePageObjectFactory;
+import lib.ui.factories.MyListsPageObjectFactory;
+import lib.ui.factories.NavigationUIFactory;
 import lib.ui.factories.SearchPageObjectFactory;
 import org.junit.Test;
 
 import java.util.List;
 
 public class MyListsTests extends CoreTestCase {
+
+  private final static String nameOfFolder = "Learning programming";
 
   @Test
   public void testSaveFirstArticleToMyList() {
@@ -22,16 +27,22 @@ public class MyListsTests extends CoreTestCase {
 
     ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
     articlePageObject.waitForTitleElement();
-    String nameOfFolder = "Learning programming";
     String articleTitle = articlePageObject.getArticleTitle();
-    articlePageObject.addArticleToMyList(nameOfFolder);
+    if (Platform.getInstance().isAndroid()) {
+      articlePageObject.addArticleToMyList(nameOfFolder);
+    } else {
+      articlePageObject.addArticlesToMySaved();
+    }
+
     articlePageObject.closeArticle();
 
-    NavigationUI navigationUI = new NavigationUI(driver);
+    NavigationUI navigationUI = NavigationUIFactory.get(driver);
     navigationUI.clickMyLists();
 
-    MyListsPageObject myListsPageObject = new MyListsPageObject(driver);
-    myListsPageObject.openFolderByName(nameOfFolder);
+    MyListsPageObject myListsPageObject = MyListsPageObjectFactory.get(driver);
+    if (Platform.getInstance().isAndroid()) {
+      myListsPageObject.openFolderByName(nameOfFolder);
+    }
     myListsPageObject.swipeByArticleToDelete(articleTitle);
   }
 
@@ -45,10 +56,10 @@ public class MyListsTests extends CoreTestCase {
     String firstSavedArticle = articlePageObject.saveAnyFoundArticle(firstQuery, nameOfFolder);
     String secondSavedArticle = articlePageObject.saveAnyFoundArticle(secondQuery, nameOfFolder);
 
-    NavigationUI navigationUI = new NavigationUI(driver);
+    NavigationUI navigationUI = NavigationUIFactory.get(driver);
     navigationUI.clickMyLists();
 
-    MyListsPageObject myListsPageObject = new MyListsPageObject(driver);
+    MyListsPageObject myListsPageObject = MyListsPageObjectFactory.get(driver);
     myListsPageObject.removeSavedArticleFromFolder(nameOfFolder, firstSavedArticle);
     List<String> articlesRemainingInList = articlePageObject.articles();
     articlePageObject.selectArticleByTitle(secondSavedArticle);

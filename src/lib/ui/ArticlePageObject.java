@@ -2,6 +2,7 @@ package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
 import lib.Platform;
+import lib.ui.factories.NavigationUIFactory;
 import lib.ui.factories.SearchPageObjectFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -61,10 +62,17 @@ abstract public class ArticlePageObject extends MainPageObject {
   }
 
   public void swipeToFooter() {
-    this.swipeUpToFindElement(
-            FOOTER_ELEMENT,
-            "Cannot the end of article",
-            20);
+    if (Platform.getInstance().isAndroid()) {
+      this.swipeUpToFindElement(
+              FOOTER_ELEMENT,
+              "Cannot the end of article",
+              40);
+    } else {
+      this.swipeUpTitleElementAppear(
+              FOOTER_ELEMENT,
+              "Cannot the end of article",
+              40);
+    }
   }
 
   public void addArticleToMyList(String nameOfFolder) {
@@ -129,6 +137,13 @@ abstract public class ArticlePageObject extends MainPageObject {
             5);
   }
 
+  public void addArticlesToMySaved() {
+    waitForElementAndClick(
+            OPTIONS_ADD_TO_MY_LIST_BUTTON,
+            "Cannot find option to add article to reading list",
+            5);
+  }
+
   public List<WebElement> listOfArticleElements() {
     return driver.findElements(By.id(ARTICLE_CONTAINER));
   }
@@ -171,7 +186,7 @@ abstract public class ArticlePageObject extends MainPageObject {
     String articleTitle = selectRandomArticle("No results found for " + searchQuery);
     selectArticleByTitle(articleTitle);
     addArticleToReadingList(nameOfFolder);
-    NavigationUI navigationUI = new NavigationUI(driver);
+    NavigationUI navigationUI = NavigationUIFactory.get(driver);
     navigationUI.comeBack();
     return articleTitle;
   }
