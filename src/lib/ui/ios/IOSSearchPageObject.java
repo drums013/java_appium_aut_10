@@ -12,10 +12,9 @@ public class IOSSearchPageObject extends SearchPageObject {
     SEARCH_RESULT_BY_SUBSTRING_TPL = "xpath://XCUIElementTypeLink[contains(@name, '{SUBSTRING}')]";
     SEARCH_RESULT_ELEMENT = "xpath://XCUIElementTypeLink";
     SEARCH_EMPTY_RESULT_ELEMENT = "xpath://XCUIElementTypeStaticText[@name='No results found']";
-    SEARCH_INPUT_PLACEHOLDER = "id:org.wikipedia:id/search_src_text";
+    NAVIGATION_BAR = "xpath://XCUIElementTypeStaticText[@name='Wikipedia, scroll to top of Explore']";
     SEARCH_PROGRESS_BAR = "id:Progress";
-    SEARCH_RESULTS_BY_TITLE_AND_DESCRIPTION_TPL = "xpath://*[android.widget.TextView[@text='{ARTICLE_TITLE}']" +
-            " and android.widget.TextView[@text='{ARTICLE_DESCRIPTION}']]";
+    CLEAR_SEARCH_INPUT_BUTTON = "id:clear mini";
   }
 
   public IOSSearchPageObject(AppiumDriver driver) {

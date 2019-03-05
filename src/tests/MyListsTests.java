@@ -48,8 +48,8 @@ public class MyListsTests extends CoreTestCase {
 
   @Test //Exercise #5
   public void testSaveTwoArticlesToMyList() {
-    String firstQuery = "Java";
-    String secondQuery = "Appium";
+    String firstQuery = "Android";
+    String secondQuery = "IOS";
     String nameOfFolder = "My list";
 
     ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
@@ -62,13 +62,15 @@ public class MyListsTests extends CoreTestCase {
     MyListsPageObject myListsPageObject = MyListsPageObjectFactory.get(driver);
     myListsPageObject.removeSavedArticleFromFolder(nameOfFolder, firstSavedArticle);
     List<String> articlesRemainingInList = articlePageObject.articles();
-    articlePageObject.selectArticleByTitle(secondSavedArticle);
-    String ActualTitleOfOpenArticle = articlePageObject.getArticleTitle();
+    if (Platform.getInstance().isAndroid()) {
+      articlePageObject.selectArticleByTitle(secondSavedArticle);
+    }
+    String ActualTitleOfSavedArticle = articlePageObject.getTitleOfSavedArticle(secondSavedArticle);
 
     assertTrue("Article titled '" + secondSavedArticle + "' is missing",
             articlesRemainingInList.stream().anyMatch(secondSavedArticle::equals));
     assertEquals("Instead of an article called '" + secondSavedArticle + "'" +
-                    ", an article called '" + ActualTitleOfOpenArticle + "' was opened",
-            secondSavedArticle, ActualTitleOfOpenArticle);
+                    ", an article called '" + ActualTitleOfSavedArticle + "' was opened",
+            secondSavedArticle, ActualTitleOfSavedArticle);
   }
 }

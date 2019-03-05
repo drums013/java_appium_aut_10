@@ -29,7 +29,9 @@ abstract public class ArticlePageObject extends MainPageObject {
           ARTICLE_CONTAINER,
           TEXT_VIEW_ELEMENT,
           TEXT_ATTRIBUTE,
-          NAME_ATTRIBUTE;
+          NAME_ATTRIBUTE,
+          LOGIN_VIEW_CLOSE_BUTTON,
+          LOGIN_VIEW;
 
   /* TEMPLATES METHODS */
   private static String getArticleXpathByName(String articleTitle) {
@@ -58,6 +60,19 @@ abstract public class ArticlePageObject extends MainPageObject {
       return titleElement.getAttribute(TEXT_ATTRIBUTE);
     } else {
       return titleElement.getAttribute(NAME_ATTRIBUTE);
+    }
+  }
+
+  public String getTitleOfSavedArticle(String articleTitle) {
+    if (Platform.getInstance().isAndroid()) {
+      return getArticleTitle();
+    } else {
+      String articleXpath = getArticleXpathByName(articleTitle);
+      return waitForElementAndGetAttribute(
+              articleXpath,
+              NAME_ATTRIBUTE,
+              "Cannot find name attribute for article " + articleTitle,
+              5);
     }
   }
 
@@ -90,7 +105,11 @@ abstract public class ArticlePageObject extends MainPageObject {
   }
 
   public List<WebElement> listOfFoundArticles() {
-    return By.id(TITLES_ELEMENTS).findElements(driver);
+    if (Platform.getInstance().isAndroid()) {
+      return By.id(TITLES_ELEMENTS).findElements(driver);
+    } else {
+      return By.xpath(TITLES_ELEMENTS).findElements(driver);
+    }
   }
 
   public void initFolderCreation() {
@@ -142,6 +161,17 @@ abstract public class ArticlePageObject extends MainPageObject {
             OPTIONS_ADD_TO_MY_LIST_BUTTON,
             "Cannot find option to add article to reading list",
             5);
+    if (isPresentLoginView()) {
+      waitForElementAndClick(
+              LOGIN_VIEW_CLOSE_BUTTON,
+              "Cannot find login view close button",
+              5);
+    }
+  }
+
+  public boolean isPresentLoginView() {
+    List elements = driver.findElements(By.xpath(LOGIN_VIEW));
+    return elements.size() > 0;
   }
 
   public List<WebElement> listOfArticleElements() {
@@ -175,17 +205,30 @@ abstract public class ArticlePageObject extends MainPageObject {
     List<String> searchingResults = new ArrayList<>();
     List<WebElement> elements = listOfFoundArticles();
     for (WebElement element : elements) {
-      String text = element.getAttribute(TEXT_ATTRIBUTE);
-      searchingResults.add(text);
+      if (Platform.getInstance().isAndroid()) {
+        String text = element.getAttribute(TEXT_ATTRIBUTE);
+        searchingResults.add(text);
+      } else {
+        String text = element.getAttribute(NAME_ATTRIBUTE);
+        searchingResults.add(text);
+      }
     }
     return new ArrayList<String>(searchingResults);
   }
 
   public String saveAnyFoundArticle(String searchQuery, String nameOfFolder) {
     findArticleInSearch(searchQuery);
+    if (Platform.getInstance().isIOS()) {
+      SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
+      searchPageObject.clickNavigationBar();
+    }
     String articleTitle = selectRandomArticle("No results found for " + searchQuery);
     selectArticleByTitle(articleTitle);
-    addArticleToReadingList(nameOfFolder);
+    if (Platform.getInstance().isAndroid()) {
+      addArticleToReadingList(nameOfFolder);
+    } else {
+      addArticlesToMySaved();
+    }
     NavigationUI navigationUI = NavigationUIFactory.get(driver);
     navigationUI.comeBack();
     return articleTitle;

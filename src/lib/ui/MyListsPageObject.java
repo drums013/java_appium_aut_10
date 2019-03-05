@@ -45,7 +45,6 @@ abstract public class MyListsPageObject extends MainPageObject {
   }
 
   public void waitForArticleToDisappearByTitle(String articleTitle) {
-    waitForArticleToAppearByTitle(articleTitle);
     String articleXpath = getSavedArticleXpathByTitle(articleTitle);
     this.waitForElementNotPresent(
             articleXpath,
@@ -62,7 +61,9 @@ abstract public class MyListsPageObject extends MainPageObject {
   }
 
   public void removeSavedArticleFromFolder(String nameOfFolder, String articleTitle) {
-    openFolderByName(nameOfFolder);
+    if (Platform.getInstance().isAndroid()) {
+      openFolderByName(nameOfFolder);
+    }
     swipeByArticleToDelete(articleTitle);
   }
 }

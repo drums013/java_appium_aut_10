@@ -1,7 +1,10 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
+import lib.Platform;
 import lib.ui.factories.ArticlePageObjectFactory;
+import lib.ui.factories.NavigationUIFactory;
+import org.openqa.selenium.By;
 
 import java.util.List;
 
@@ -16,7 +19,9 @@ abstract public class SearchPageObject extends MainPageObject {
           SEARCH_EMPTY_RESULT_ELEMENT,
           SEARCH_INPUT_PLACEHOLDER,
           SEARCH_PROGRESS_BAR,
-          SEARCH_RESULTS_BY_TITLE_AND_DESCRIPTION_TPL;
+          SEARCH_RESULTS_BY_TITLE_AND_DESCRIPTION_TPL,
+          NAVIGATION_BAR,
+          CLEAR_SEARCH_INPUT_BUTTON;
 
   public SearchPageObject(AppiumDriver driver) {
     super(driver);
@@ -51,6 +56,9 @@ abstract public class SearchPageObject extends MainPageObject {
     this.waitForElementPresent(
             SEARCH_INIT_ELEMENT,
             "Cannot find search input after clicking init element");
+    if (isSearchInputNotEmpty()) {
+      clearSearchInput();
+    }
   }
 
   public void typeSearchLine(String searchLine) {
@@ -63,6 +71,26 @@ abstract public class SearchPageObject extends MainPageObject {
             SEARCH_PROGRESS_BAR,
             "Results still not loaded",
             15);
+  }
+
+  public boolean isSearchInputNotEmpty() {
+    return driver.findElements(By.id("clear mini")).size() > 0;
+  }
+
+  public void clearSearchInput() {
+    waitForElementAndClick(
+            CLEAR_SEARCH_INPUT_BUTTON,
+            "Cannot find clear button for search input",
+            5);
+  }
+
+  public void clickNavigationBar() {
+    waitForElementAndClick(
+            NAVIGATION_BAR,
+            "Cannot find navigation bar",
+            5);
+    NavigationUI navigationUI = NavigationUIFactory.get(driver);
+    navigationUI.comeBack();
   }
 
   public void waitForSearchResult(String substring) {

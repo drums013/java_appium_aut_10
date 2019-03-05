@@ -14,7 +14,7 @@ public class AndroidArticlePageObject extends ArticlePageObject {
     MY_LIST_NAME_INPUT = "id:org.wikipedia:id/text_input";
     MY_LIST_OK_BUTTON = "xpath://*[@text='OK']";
     CLOSE_ARTICLE_BUTTON = "xpath://android.widget.ImageButton[@content-desc='Navigate up']";
-    TITLES_ELEMENTS = "id:org.wikipedia:id/page_list_item_title";
+    TITLES_ELEMENTS = "org.wikipedia:id/page_list_item_title";
     ARTICLE_BY_TITLE_TPL = "xpath://*[@resource-id='org.wikipedia:id/page_list_item_container']" +
                     "//*[@text='{ARTICLE_TITLE}']";
     FOLDER_TO_SAVE_BY_NAME_TPL = "xpath://*[@resource-id='org.wikipedia:id/item_container']" +
