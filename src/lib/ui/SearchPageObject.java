@@ -48,6 +48,14 @@ abstract public class SearchPageObject extends MainPageObject {
             5);
   }
 
+  public void waitForElementByTitle(String articleTitle) {
+    String searchResultXpath = getResultSearchElement(articleTitle);
+    this.waitForElementPresent(
+            searchResultXpath,
+            "Cannot find an article with the title '" + articleTitle + "'",
+            5);
+  }
+
   public void initSearchInput() {
     this.waitForElementAndClick(
             SEARCH_INIT_ELEMENT,
@@ -122,7 +130,7 @@ abstract public class SearchPageObject extends MainPageObject {
   }
 
   public void clickByArticleWithSubstring(String substring) {
-    String searchResultXpath =getResultSearchElement(substring);
+    String searchResultXpath = getResultSearchElement(substring);
     this.waitForElementAndClick(
             searchResultXpath,
             "Cannot find and click search result with substring " + substring,
@@ -160,20 +168,33 @@ abstract public class SearchPageObject extends MainPageObject {
   }
 
   public boolean checkIfSpecifiedNumberOfArticlesFound(int numberOfArticles) {
-    ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
-    List<String> articles = articlePageObject.articlesWithDescription();
-    if (articles.size() / 2 < numberOfArticles) {
-      throw new AssertionError("The number of articles in the list is less than " + numberOfArticles);
+    if (Platform.getInstance().isAndroid()) {
+      ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
+      List<String> articles = articlePageObject.articlesWithDescription();
+      if (articles.size() / 2 < numberOfArticles) {
+        throw new AssertionError("The number of articles in the list is less than " + numberOfArticles);
+      }
+      int i = 0;
+      while (i < numberOfArticles) {
+        String articleTitle = articles.iterator().next();
+        articles.remove(articleTitle);
+        String description = articles.iterator().next();
+        articles.remove(description);
+        waitForElementByTitleAndDescription(articleTitle, description);
+        i++;
+      }
+      return true;
+    } else {
+      ArticlePageObject articlePageObject = ArticlePageObjectFactory.get(driver);
+      List<String> articles = articlePageObject.articles();
+      int i = 0;
+      while (i < numberOfArticles) {
+        String articleTitle = articles.iterator().next();
+        articles.remove(articleTitle);
+        waitForElementByTitle(articleTitle);
+        i++;
+      }
+      return true;
     }
-    int i = 0;
-    while (i < numberOfArticles) {
-      String articleTitle = articles.iterator().next();
-      articles.remove(articleTitle);
-      String description = articles.iterator().next();
-      articles.remove(description);
-      waitForElementByTitleAndDescription(articleTitle, description);
-      i++;
-    }
-    return true;
   }
 }
